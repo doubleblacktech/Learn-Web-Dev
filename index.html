@@ -1,0 +1,37 @@
+<html>
+	<head>
+		<title>My Not ToDo App</title>
+		
+		<script>
+			var numItems = 0;
+			
+			function AddItem() {
+				var strItem = prompt("Please Enter An Item");
+				
+				if (strItem != null && strItem != "") {
+					document.getElementById("todoList").innerHTML += strItem + "<br />";
+				} else if (strItem == "") {
+					alert("You must enter an item");
+				}
+			}
+		</script>
+	</head>
+	
+	<body>
+	
+	<div>
+		<h3>Not To-Do App</h3>
+	</div>
+	
+	<hr />
+	
+	<div id="todoList">
+		
+	</div>
+	
+	<div>
+		<input type="button" name="addItem" value="Add Item" onClick="AddItem()">
+	</div>
+	
+	</body>
+</html>
