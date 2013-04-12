@@ -4,16 +4,114 @@
 		
 		<script>
 			var numItems = 0;
+			var arrData = [];
+			
+			// Set data in a Cookie
+			function setData() {
+				var expDays = 10;
+				var strArray = arrData.join(";");
+
+				// convert the number of days to a valid date
+				var expDate = new Date();
+				expDate.setDate(expDate.getDate() + expDays);
+
+				// add the number of days until the cookie should expire
+				var cValue = escape(strArray) + ((expDays == null) ? "" : "; expires=" + expDate.toUTCString());
+
+				// store the cookie name, cookie value and the expiration date
+				document.cookie = "Class=" + cValue;
+			}
+			
+			// Get data from a Cookie
+			function getData(cName) {
+				var ndx, name, val;
+				
+				// convert cookie string into array
+				var arrCookies = document.cookie.split(";");
+
+				// loop through array
+				for (ndx=0; ndx<arrCookies.length; ndx++) {
+
+					// get name
+					name = arrCookies[ndx].substr(0, arrCookies[ndx].indexOf("="));
+
+					// get value
+					val = arrCookies[ndx].substr(arrCookies[ndx].indexOf("=") + 1);
+
+					// is this the cookie we need?
+					if (name == cName) {
+						return unescape(val);
+					}
+				}
+			}
+			
+			// Display data upon startup
+			function displayData() {
+				var ndx;
+				var strTmp;
+  
+  				// assign cookie data to tmp var
+				strTmp = getData("Class");
+
+				// if cookie data exists
+				if(strTmp != undefined && strTmp != "") {
+					
+					// convert tmp cookie string into array
+					arrData = strTmp.split(";");
+
+					// loop through array ...
+					var strNotToDo = "";
+					for (ndx=0; ndx<arrData.length; ndx++) {
+					
+						/*	********************************************************* 
+							Martin ToDo: Encapsulate the logic to show the ToDo Item.
+							Hint 1: Move the code shown below into another function.
+							Hint 2: showItem(ndx, arrData[ndx])
+						*********************************************************** */
+						var strNotToDo = "<input type='checkbox' name='"+ ndx +"' value='"+ arrData[ndx] +"'>" + arrData[ndx] + "<button>Edit</button><button>Delete</button><br />"
+						
+						// ...  to display on page
+						document.getElementById("todoList").innerHTML += strNotToDo + "<br />";
+					}
+				}
+			}
 			
 			function AddItem() {
 				var strItem = prompt("Please Enter An Item");
 				
 				if (strItem != null && strItem != "") {
+				
+					/*	********************************************************* 
+						Martin ToDo: Add item to an array. 
+						Hint: The array has already been created
+					*********************************************************** */
+					
+					/*	********************************************************* 
+						Martin ToDo: Set the cookie.
+						Hint: We already created a function that does that for us
+					*********************************************************** */
+				
 					document.getElementById("todoList").innerHTML += strItem + "<br />";
 				} else if (strItem == "") {
 					alert("You must enter an item");
 				}
 			}
+			
+			/*	********************************************************* 
+				Martin ToDo: Define this function to show ToDo Item
+				Hint 1: Code is already being used above
+				Hint 2: Need to modify a code slightly to account for the
+				function variable names
+			*********************************************************** */
+			function showItem(name, value) {
+			
+			}
+			
+			// call starter function after all DOM elements have been loaded
+			window.onload = function() {
+				displayData();
+			}
+			
 		</script>
 	</head>
 	
