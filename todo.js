@@ -1,17 +1,23 @@
 var numItems = 0;
 var arrData = [];
+var initWidth = 275;
+var numItems = 0;
+var numLost = 0;
+var myTimerId;
 
 function init() {
 	displayData();
 	
-	var messagesContainerElem = document.getElementById("todolist-athome");		//** Changed the name of ID
-	messagesContainerElem.addEventListener("click", messagesClickHandler);
+	$("#todolist-athome").click(messagesClickHandler);
 	
-	var addItemElem = document.getElementById("addItem-btn");
-	addItemElem.addEventListener("click", addItemClickHandler);
+	$("#addItem-btn").click(addItemClickHandler);
 	
-	var clearFormElem = document.getElementById("clearForm-btn");
-	clearFormElem.addEventListener("click", clearFormClickHandler);
+	$("#clearForm-btn").click(clearFormClickHandler);
+	
+	/*	Set Timer Bar ******************************** */
+	myTimerId = setInterval(function(){
+			myTimer()
+		},500);
 }
 
 function messagesClickHandler(e) {
@@ -20,63 +26,45 @@ function messagesClickHandler(e) {
 	if (target.className == 'delete') {
 		// Delete Item
 		
-/*	********************************************************************
-	Homework for Martin
-	
-// Extract the ID Number from the ID text
+		var myId = getNumFromId(target.id)
 
-// Get the Title text
+		var myTitle = $("#title-"+myId);
 
-// Search the arrData array for Title text and returns its position
+		var arrPos = arrData.indexOf(myTitle);
 
-// Removes element from the arrData array
+		arrData.splice(arrPos,1);
+		
+		numItems = arrData.length;
 
-// Update the Cookie
-
-********************************************************************* */
-		target.parentNode.style.display = 'none'
+		setData();
+		
+		/*	Remove element ******************************** */
+		$(target.parentNode).remove();
 	} else if(target.className == 'title') {
 		editItem(target.id)
+	} else {
+	
+		/*	Reset Timer Bar ******************************** */
+		if(!$('#'+target.id).hasClass('red')) {
+			var id = getNumFromId(target.id)
+
+			var myTimerBar = $("#pane-"+ id +" .timerBar");
+		
+			myTimerBar.width(initWidth);
+		}
 	}
 }
 
 // Set data in a Cookie
 function setData() {
 	var expDays = 10;
-	var strArray = arrData.join(";");
 
-	// convert the number of days to a valid date
-	var expDate = new Date();
-	expDate.setDate(expDate.getDate() + expDays);
-
-	// add the number of days until the cookie should expire
-	var cValue = escape(strArray) + ((expDays == null) ? "" : "; expires=" + expDate.toUTCString());
-
-	// store the cookie name, cookie value and the expiration date
-	document.cookie = "csslayout=" + cValue;	//** Changed the name of Cookie
+	$.cookie("domstrikesback", arrData.join(";"), { expires: expDays });
 }
 
 // Get data from a Cookie
 function getData(cName) {
-	var ndx, name, val;
-	
-	// convert cookie string into array
-	var arrCookies = document.cookie.split(";");
-
-	// loop through array
-	for (ndx=0; ndx<arrCookies.length; ndx++) {
-
-		// get name
-		name = arrCookies[ndx].substr(0, arrCookies[ndx].indexOf("="));
-
-		// get value
-		val = arrCookies[ndx].substr(arrCookies[ndx].indexOf("=") + 1);
-
-		// is this the cookie we need?
-		if (name == cName) {
-			return unescape(val);
-		}
-	}
+	return $.cookie(cName).split(";");
 }
 
 // Display data upon startup
@@ -85,26 +73,23 @@ function displayData() {
 	var strTmp;
 
 	// assign cookie data to tmp var
-	strTmp = getData("csslayout");		//** Changed the name of Cookie
+	arrData = getData("domstrikesback");		//** Changed the name of Cookie
 
 	// if cookie data exists
-	if(strTmp != undefined && strTmp != "") {
+	if(arrData != undefined && arrData != "") {
 		
-		// convert tmp cookie string into array
-		arrData = strTmp.split(";");
-
 		// loop through array ...
-		var strNotToDo = "";
-		for (ndx=0; ndx<arrData.length; ndx++) {
-		
-			showItem(ndx, arrData[ndx], "Some Text");		//** Added New Parameter
-		}
+		$.each( arrData, function( key, value ) {
+			showItem(key, value, "Some Text");
+		});
 	}
+	
+	numItems = arrData.length;
 }
 
 function addItemClickHandler(e) {
-	var strTitle = document.getElementById("formTitle").value;
-	var strDescr = document.getElementById("formDescr").value;
+	var strTitle = $("#formTitle").val();
+	var strDescr = $("#formDescr").val();
 	
 	if (strTitle != null && strTitle != "") {
 
@@ -113,6 +98,9 @@ function addItemClickHandler(e) {
 		// add string to data array
 		arrData.push(strTitle);
 
+		/*	Update the number of items ******************************** */
+		numItems = arrData.length;
+		
 		// set data into cookie
 		setData();
 	} else if (strTitle == "") {
@@ -121,33 +109,82 @@ function addItemClickHandler(e) {
 }
 
 function showItem(id, title, descr) {
-	var strNotToDo = 	"<div class='pane'>" + 
-						"<h3><a href='javascript:;' id='title-"+ id +"' class='title'>"+ title +"</a></h3>" +
-						"<p id='descr-"+ id +"'>"+ descr +"</p>" +
-						"<img id='delete-"+ id +"' src='delete.gif' alt='delete' class='delete' />" + 
-						"</div>";
-						//** Added ID to img element
 
-	// ...  to display on page
-	document.getElementById("todolist-athome").innerHTML += strNotToDo;		//** Changed the name of ID
+	/*	Added id to pane element ******************************** */
+	var myPanel = $( "<div class='pane' id='pane-"+ id +"'>" );
+	
+	/*	Added id to header element ******************************** */
+	var myTitle = $( "<h3 id='header-"+ id +"'><a href='javascript:;' id='title-"+ id +"' class='title'>"+ title +"</a></h3>" ).appendTo( myPanel );
+	var myDescr = $( "<p id='descr-"+ id +"'>"+ descr +"</p>" ).appendTo( myPanel );
+	
+	/*	Added Timer Bar element ******************************** */
+	var timerBar = $( "<div class='timerBar'>" ).appendTo( myPanel );
+	
+	var myDelete = $( "<img id='delete-"+ id +"' src='delete.gif' alt='delete' class='delete' />" ).appendTo( myPanel ); 
+	
+	myPanel.appendTo( "#todolist-athome" );
 }
 
 function editItem(id) {
 	var itemId = id.substr(id.indexOf("-")+1);
 	
-	var title = document.getElementById("title-"+itemId).innerHTML;
-	var descr = document.getElementById("descr-"+itemId).innerHTML;
-	
-	document.getElementById("formTitle").value = title;
-	document.getElementById("formDescr").value = descr;
+	$("#formTitle").val( $("#title-"+itemId) );
+	$("#formDescr").val( $("#descr-"+itemId) );
 }
 
 function clearFormClickHandler(e) {
-	document.getElementById("formTitle").value = "";
-	document.getElementById("formDescr").value = "";
+	$("#formTitle").val("");
+	$("#formDescr").val("");
+}
+
+/*	Timer function for Timer Bar ******************************** */
+function myTimer() {
+	var w;
+	
+	$("div.timerBar").each(function() { 
+	
+		// Get the width of the current Timer Bar
+		w = $(this).width()
+		
+		// If width is greater than zero ...
+		if(w > 0) {
+		
+			// Reduce the width of the current Timer Bar
+			$(this).width(w - 10);
+		} else {
+		
+			// Get the parent to the current Timer Bar
+			var myParent = $(this).parent();
+			
+			// If the current Timer Bar already does not have a class called red ...
+			if(!myParent.hasClass('red')) {
+			
+				myParent.addClass("red");
+			}
+		}		
+	});
+	
+	$("div.timerBar").each(function() { 
+		w = $(this).width()
+
+		if(w < 1) {
+			numLost++
+		}
+	});
+	
+	if(numLost == numItems && numItems > 0){
+		window.clearInterval(myTimerId);
+		
+		alert("GAME OVER!!");
+	}
+}
+
+/*	Encapsulate getting a number from element id ******************************** */
+function getNumFromId(val) {
+	return val.substr(val.indexOf("-") + 1);
 }
 
 // call starter function after all DOM elements have been loaded
-window.onload = function() {
+$(function() {
 	init();
-}
+});

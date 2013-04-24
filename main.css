@@ -34,7 +34,7 @@ div#banner h1
 
 div#container
 {
-	background-image: url(nav_col_base.png);
+	background-image: url("nav_col_base.png");
 	background-repeat: repeat-y;
 }
 
@@ -61,7 +61,7 @@ div#navigation ul li { margin-top: 4px; }
 	padding: 3px 5px 3px 10px;
 	text-decoration: none;
 	color: #000;
-	background-image: url(nav_base.png);
+	background-image: url("nav_base.png");
 	background-repeat: repeat-y;
 }
 
@@ -69,7 +69,7 @@ div#navigation ul li { margin-top: 4px; }
 {
 	color: #fff;
 	background-color: #ccc;
-	background-image: url(nav_base2.png);
+	background-image: url("nav_base2.png");
 	background-repeat: repeat-y;
 }
 
